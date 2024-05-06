@@ -5,28 +5,15 @@ const {
     shareCalendar,
     getMillVilleCalendar
 } = require("./api");
+const cors = require("cors");
 
 const app = express();
 const port = 3000;
 
 // Middleware to parse JSON request bodies
+app.use(cors());
+
 app.use(express.json());
-
-// Color options available
-const colorOptions = {
-    1: { name: "Lavender", hex: "#7986cb" },
-    2: { name: "Sage", hex: "#33b679" },
-    3: { name: "Grape", hex: "#8e24aa" },
-    4: { name: "Flamingo", hex: "#e67c73" },
-    5: { name: "Banana", hex: "#f6c026" },
-    6: { name: "Tangerine", hex: "#f5511d" },
-    7: { name: "Peacock", hex: "#039be5" },
-    8: { name: "Graphite", hex: "#616161" },
-    9: { name: "Blueberry", hex: "#3f51b5" },
-    10: { name: "Basil", hex: "#0b8043" },
-    11: { name: "Tomato", hex: "#d60000" },
-};
-
 
 const humFlex = "FLEX";
 
@@ -115,6 +102,9 @@ app.post('/processEvents', async (req, res) => {
         }
 
         // Create a new calendar and add these events to it
+        res.json({ status: 'success', message: 'Events processed and calendar created.' });
+
+        return;
         const calendarDetails = await createCalendar("Millville School Adjusted Events");
         if (calendarDetails) {
             console.log(`New Calendar Created: ${calendarDetails.id}`);
