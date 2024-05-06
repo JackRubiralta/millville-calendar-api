@@ -153,6 +153,30 @@ const deleteAllCalendars = async () => {
     }
 };
 
+async function makeCalendarPublic(calendarId) {
+    try {
+        // Set the calendar to public
+        await calendar.acl.insert({
+            auth: oAuth2Client,
+            calendarId: calendarId,
+            requestBody: {
+                role: 'reader',
+                scope: {
+                    type: 'default'
+                }
+            }
+        });
+
+        // Construct iCal link
+        const iCalLink = `https://calendar.google.com/calendar/ical/${encodeURIComponent(calendarId)}/public/basic.ics`;
+
+        return iCalLink;
+    } catch (error) {
+        console.error('Failed to make calendar public:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     createCalendar,
     shareCalendar,
@@ -160,5 +184,6 @@ module.exports = {
     deleteEvent,
     getCalendarEvents,
     getMillVilleCalendar,
-    deleteAllCalendars // Add this to export the new function
+    deleteAllCalendars, // Add this to export the new function
+    makeCalendarPublic
 };

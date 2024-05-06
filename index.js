@@ -30,7 +30,6 @@ app.post('/processEvents', async (req, res) => {
             humanitiesBlock: humanitiesBlock,
             secondLunchBlocks: secondLunchBlocks
         } = req.body;
-
         // Assign received data to global variables
         
 
@@ -102,9 +101,7 @@ app.post('/processEvents', async (req, res) => {
         }
 
         // Create a new calendar and add these events to it
-        res.json({ status: 'success', message: 'Events processed and calendar created.' });
 
-        return;
         const calendarDetails = await createCalendar("Millville School Adjusted Events");
         if (calendarDetails) {
             console.log(`New Calendar Created: ${calendarDetails.id}`);
@@ -117,18 +114,26 @@ app.post('/processEvents', async (req, res) => {
                 );
             }
 
-            const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
-            if (shareResult) {
-                console.log(`Calendar shared successfully with ${shareEmail}`);
-            } else {
-                console.log(`Failed to share calendar with ${shareEmail}`);
-            }
+            await shareCalendar(calendarDetails.id, shareEmail);
+
+            // Assuming makeCalendarPublic is implemented and works as expected
+            const iCalLink = await makeCalendarPublic(calendarDetails.id);
+            const googleCalendarLink = `https://calendar.google.com/calendar/embed?src=${calendarDetails.id}&ctz=America/New_York`;  // Make sure the timezone is correct
+
+            console.log(`Calendar created and shared. iCal Link: ${iCalLink}, Google Calendar Link: ${googleCalendarLink}`);
+            res.json({
+                status: 'success',
+                message: 'Events processed and calendar created.',
+                iCalLink,
+                googleCalendarLink
+            });
         } else {
             console.log("Failed to create a new calendar");
         }
 
         res.json({ status: 'success', message: 'Events processed and calendar created.' });
-
+        // have it share the secret iCal address https://calendar.google.com/calendar/ical/b2ea17f785fc848d8b6b8a3de042982e334f7c0665cb582217969575bb883137%40group.calendar.google.com/private-54231690c6a7e78d33608a86c0e0e9f4/basic.ics
+        // also just have it the google link to the calendar
     } catch (error) {
         console.error(`Error in processEvents endpoint: ${error}`);
         res.status(500).json({ status: 'error', message: 'Internal server error.' });
