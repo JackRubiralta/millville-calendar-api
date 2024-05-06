@@ -178,10 +178,30 @@ async function makeCalendarPublic(calendarId) {
 
 
 const addEvents = async (events, calendarId) => {
-    const promises = events.map( async  event => {
-        await addEvent(event, calendarId)
-    });
-    return Promise.all(promises);
+    const batch = google.batch(); // Create a new batch request
+    const responses = [];
+
+    for (let i = 0; i < events.length; i++) {
+        const event = events[i];
+        const request = calendar.events.insert({
+            auth,
+            calendarId,
+            resource: event
+        });
+        batch.add(request, { id: i }); // Add the request to the batch with an identifier
+
+        if ((i + 1) % 50 === 0 || i === events.length - 1) { // Process in batches of 50 or the remaining events in the last batch
+            try {
+                const response = await batch.execute(); // Execute the batch request
+                responses.push(...Object.values(response)); // Collect responses
+                batch = google.batch(); // Reset the batch for the next round if any
+            } catch (error) {
+                console.error(`Batch execution failed: ${error.message}`);
+                // Handle batch execution error or retry logic here
+            }
+        }
+    }
+    return responses; // Return all responses from batch requests
 };
 
 module.exports = {
