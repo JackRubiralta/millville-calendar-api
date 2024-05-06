@@ -305,7 +305,6 @@ app.post('/processEvents', async (req, res) => {
             
             const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
 
-            // Assuming makeCalendarPublic is implemented and works as expected
            
         
             
@@ -322,7 +321,7 @@ app.post('/processEvents', async (req, res) => {
             }
             
             const iCalLink = await makeCalendarPublic(calendarDetails.id);
-            const googleCalendarLink = `https://calendar.google.com/calendar/embed?src=${calendarDetails.id}&ctz=America/New_York`;  // Make sure the timezone is correct
+            const googleCalendarLink = `https://calendar.google.com/calendar/u/0?cid=${calendarDetails.id}`;  // Make sure the timezone is correct
             console.log(`Calendar created and shared. iCal Link: ${iCalLink}, Google Calendar Link: ${googleCalendarLink}`);
 
 
