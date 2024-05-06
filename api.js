@@ -178,10 +178,10 @@ async function makeCalendarPublic(calendarId) {
 
 
 const addEvents = async (events, calendarId) => {
-    const promises = await events.map( async  event => {
+    const promises = events.map( async  event => {
         await addEvent(event, calendarId)
     });
-    return await Promise.all(promises);
+    return Promise.all(promises);
 };
 
 module.exports = {
