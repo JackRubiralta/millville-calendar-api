@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { google } = require('googleapis');
 
 // Configuration and Google calendar API initialization
