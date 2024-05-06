@@ -1,4 +1,3 @@
-const express = require('express');
 const {
     createCalendar,
     addEvent,
@@ -6,15 +5,18 @@ const {
     getMillVilleCalendar,
     makeCalendarPublic
 } = require("./api");
-const cors = require("cors");
+
+
+
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
-const port = 3000;
-
-// Middleware to parse JSON request bodies
 app.use(cors());
+app.use(express.json()); // for parsing application/json
+const port = 3001; 
+// Your routes go here
 
-app.use(express.json());
 
 const humFlex = "FLEX";
 
@@ -35,7 +37,7 @@ app.post('/processEvents', async (req, res) => {
         
 
         // Retrieve events from MillVille calendar
-        const events = await getMillVilleCalendar(1);
+        const events = await getMillVilleCalendar(34);
 
         // Sort events by start time to handle them in chronological order
         events.sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
