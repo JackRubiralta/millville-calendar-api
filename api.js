@@ -68,13 +68,14 @@ const addEvent = async (event, calendarId) => {
             calendarId,
             resource: event,
         });
+        const result = response.status === 200 ? 1 : 0;
         console.log(
             result
                 ? `Event added successfully: ${event.summary}`
                 : `Failed to add event: ${event.summary}`
         );
     
-        return response.status === 200 ? 1 : 0;
+        return result;
     } catch (error) {
         console.log(`Error at addEvent --> ${error}`);
         return 0;
