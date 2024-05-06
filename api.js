@@ -153,12 +153,17 @@ const deleteAllCalendars = async () => {
     }
 };
 
+/**
+ * Makes a specified Google Calendar public and returns the iCal public URL.
+ * @param {string} calendarId The ID of the calendar to make public.
+ * @returns {string} The iCal URL of the public calendar.
+ */
 async function makeCalendarPublic(calendarId) {
     try {
-        // Set the calendar to public
+        // Update the calendar to make it public
         await calendar.acl.insert({
-            auth: oAuth2Client,
-            calendarId: calendarId,
+            auth,
+            calendarId,
             requestBody: {
                 role: 'reader',
                 scope: {
@@ -167,9 +172,9 @@ async function makeCalendarPublic(calendarId) {
             }
         });
 
-        // Construct iCal link
+        // Construct the iCal link using the public calendar ID
         const iCalLink = `https://calendar.google.com/calendar/ical/${encodeURIComponent(calendarId)}/public/basic.ics`;
-
+        console.log(`Calendar made public: ${iCalLink}`);
         return iCalLink;
     } catch (error) {
         console.error('Failed to make calendar public:', error);

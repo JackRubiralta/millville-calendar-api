@@ -3,7 +3,8 @@ const {
     createCalendar,
     addEvent,
     shareCalendar,
-    getMillVilleCalendar
+    getMillVilleCalendar,
+    makeCalendarPublic
 } = require("./api");
 const cors = require("cors");
 
@@ -34,7 +35,7 @@ app.post('/processEvents', async (req, res) => {
         
 
         // Retrieve events from MillVille calendar
-        const events = await getMillVilleCalendar(34);
+        const events = await getMillVilleCalendar(1);
 
         // Sort events by start time to handle them in chronological order
         events.sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
@@ -114,7 +115,9 @@ app.post('/processEvents', async (req, res) => {
                 );
             }
 
-            await shareCalendar(calendarDetails.id, shareEmail);
+         
+
+            const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
 
             // Assuming makeCalendarPublic is implemented and works as expected
             const iCalLink = await makeCalendarPublic(calendarDetails.id);
@@ -129,10 +132,10 @@ app.post('/processEvents', async (req, res) => {
             });
         } else {
             console.log("Failed to create a new calendar");
+            res.status(500).json({ status: 'error', message: 'Internal server error.' });
         }
 
-        res.json({ status: 'success', message: 'Events processed and calendar created.' });
-        // have it share the secret iCal address https://calendar.google.com/calendar/ical/b2ea17f785fc848d8b6b8a3de042982e334f7c0665cb582217969575bb883137%40group.calendar.google.com/private-54231690c6a7e78d33608a86c0e0e9f4/basic.ics
+       // res.json({ status: 'success', message: 'Events processed and calendar created.' });
         // also just have it the google link to the calendar
     } catch (error) {
         console.error(`Error in processEvents endpoint: ${error}`);
