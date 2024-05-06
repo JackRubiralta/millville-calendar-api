@@ -176,32 +176,33 @@ async function makeCalendarPublic(calendarId) {
     }
 }
 
-
 const addEvents = async (events, calendarId) => {
-    // Prepare batch request
-    const batch = google.batch();
+    // Helper function to delay execution
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-    // Each event request is added to the batch.
-    events.forEach(event => {
-        const request = calendar.events.insert({
-            calendarId: calendarId,
-            resource: event
-        });
-        batch.add(request);
-    });
+    // max is 10 per second
+    const BATCH_SIZE = 9; // Maximum number of events per batch
+    const REQUEST_INTERVAL_MS = 2000; // Wait 1 second between batches
+    let promises = [];
 
-    // Execute all batched requests
-    try {
-        const response = await batch.execute();
-        return Object.keys(response).map(key => {
-            // Each key is an identifier for the request and the response[key] is the response for that request.
-            return response[key].data; // Assuming 'data' contains the actual response for each inserted event.
-        });
-    } catch (error) {
-        console.error(`Error during batch execution: ${error}`);
-        throw error;
+    for (let i = 0; i < events.length; i += BATCH_SIZE) {
+        // Get the current batch of events
+        const currentBatch = events.slice(i, i + BATCH_SIZE);
+        // Add events in the current batch
+        promises = promises.concat(currentBatch.map(event => addEvent(event, calendarId)));
+        
+        // Wait for all events in the current batch to be added
+        await Promise.all(promises);
+        
+        // Delay before processing the next batch
+        if (i + BATCH_SIZE < events.length) {
+            await delay(REQUEST_INTERVAL_MS);
+        }
     }
+
+    return Promise.all(promises);
 };
+
 module.exports = {
     createCalendar,
     shareCalendar,
