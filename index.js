@@ -21,7 +21,7 @@ const corsOptions = {
     optionsSuccessStatus: 200 // For legacy browser support
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(express.json()); // for parsing application/json
 app.use(morgan("combined"));
@@ -115,7 +115,15 @@ app.post('/processEvents', async (req, res) => {
             }
 
             lastEvent = event; // Update last event to the current event
-            processedEvents.push(event);
+            let start = new Date(event.start.dateTime);
+            let end = new Date(event.end.dateTime);
+            let duration = (end - start) / (1000 * 60 * 60 * 24); // Convert duration from milliseconds to days
+        
+            if (duration < 1) {
+                // Only push the event if its duration is less than one day
+                processedEvents.push(event);
+            }
+        
         }
 
         // Create a new calendar and add these events to it
@@ -133,7 +141,7 @@ app.post('/processEvents', async (req, res) => {
             
             
            
-            const results = await addEvents(events, calendarDetails.id);
+            const results = await addEvents(processedEvents, calendarDetails.id);
 
             const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
 

@@ -178,32 +178,30 @@ async function makeCalendarPublic(calendarId) {
 
 
 const addEvents = async (events, calendarId) => {
-    const batch = google.batch(); // Create a new batch request
-    const responses = [];
+    // Prepare batch request
+    const batch = google.batch();
 
-    for (let i = 0; i < events.length; i++) {
-        const event = events[i];
+    // Each event request is added to the batch.
+    events.forEach(event => {
         const request = calendar.events.insert({
-            auth,
-            calendarId,
+            calendarId: calendarId,
             resource: event
         });
-        batch.add(request, { id: i }); // Add the request to the batch with an identifier
+        batch.add(request);
+    });
 
-        if ((i + 1) % 50 === 0 || i === events.length - 1) { // Process in batches of 50 or the remaining events in the last batch
-            try {
-                const response = await batch.execute(); // Execute the batch request
-                responses.push(...Object.values(response)); // Collect responses
-                batch = google.batch(); // Reset the batch for the next round if any
-            } catch (error) {
-                console.error(`Batch execution failed: ${error.message}`);
-                // Handle batch execution error or retry logic here
-            }
-        }
+    // Execute all batched requests
+    try {
+        const response = await batch.execute();
+        return Object.keys(response).map(key => {
+            // Each key is an identifier for the request and the response[key] is the response for that request.
+            return response[key].data; // Assuming 'data' contains the actual response for each inserted event.
+        });
+    } catch (error) {
+        console.error(`Error during batch execution: ${error}`);
+        throw error;
     }
-    return responses; // Return all responses from batch requests
 };
-
 module.exports = {
     createCalendar,
     shareCalendar,
