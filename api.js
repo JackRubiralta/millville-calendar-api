@@ -32,7 +32,7 @@ const shareCalendar = async (calendarId, email) => {
             auth,
             calendarId,
             requestBody: {
-                role: 'owner',
+                role: 'writer',
                 scope: {
                     type: 'user',
                     value: email
