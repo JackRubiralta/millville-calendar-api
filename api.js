@@ -159,7 +159,7 @@ async function makeCalendarPublic(calendarId) {
             auth,
             calendarId,
             requestBody: {
-                role: 'owner',
+                role: 'reader',
                 scope: {
                     type: 'default'
                 }
