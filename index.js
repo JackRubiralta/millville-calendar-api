@@ -127,7 +127,6 @@ app.post('/processEvents', async (req, res) => {
             
             
             
-            const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
 
            
         
@@ -135,6 +134,9 @@ app.post('/processEvents', async (req, res) => {
             
            
             const results = await addEvents(events, calendarDetails.id);
+
+            const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
+
             const iCalLink = await makeCalendarPublic(calendarDetails.id);
             const googleCalendarLink = `https://calendar.google.com/calendar/u/0?cid=${calendarDetails.id}`;  // Make sure the timezone is correct
 

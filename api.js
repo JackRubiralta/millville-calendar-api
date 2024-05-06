@@ -178,21 +178,10 @@ async function makeCalendarPublic(calendarId) {
 
 
 const addEvents = async (events, calendarId) => {
-    const promises = events.map(event => {
-        return calendar.events.insert({
-            auth,
-            calendarId,
-            resource: event
-        }).then(response => ({
-            status: 'success',
-            summary: event.summary
-        })).catch(error => ({
-            status: 'failed',
-            summary: event.summary,
-            error: error.message
-        }));
+    const promises = await events.map( async  event => {
+        await addEvent(event, calendarId)
     });
-    return Promise.all(promises);
+    return await Promise.all(promises);
 };
 
 module.exports = {
