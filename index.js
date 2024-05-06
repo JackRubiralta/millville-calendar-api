@@ -245,10 +245,13 @@ app.post('/processEvents', async (req, res) => {
                     event.colorId = blockToColors[event.summary];
                     event.summary = blockToClasses[humanitiesBlock];
                 }
-            } else if (event.summary === humFlex) {
+            } else if (event.summary.includes(humFlex)) {
                 if (lastEvent && lastEvent.summary === blockToClasses[humanitiesBlock]) {
                     lastEvent.end = event.end; // Extend the end time of the last event
                     continue; // Skip adding the current event as a separate entry
+                } else {
+                    event.colorId = blockToColors[humFlex];
+                    event.summary = "Flex";
                 }
             } else if (blockToClasses[event.summary]) {
                 event.colorId = blockToColors[event.summary];
@@ -275,11 +278,14 @@ app.post('/processEvents', async (req, res) => {
                         event.colorId = blockToColors[blockLetter];
                         event.summary = blockToClasses[blockLetter];
                     }
-                }
-            } else if (event.summary.includes(humFlex)) {
-                event.colorId = blockToColors[humFlex];
-                event.summary = "Flex";
-            } else {
+                } 
+            } else if (event.summary.includes("Chapel")) {
+                event.colorId = blockToColors["Chapel"];
+            } else if (event.summary.includes("House Meetings")) {
+                event.colorId = blockToColors["House Meetings"];
+            }
+            
+            else {
                 event.summary = event.summary;
                 event.colorId = defaultColor;
             }
@@ -293,6 +299,19 @@ app.post('/processEvents', async (req, res) => {
         const calendarDetails = await createCalendar("Millville School Adjusted Events");
         if (calendarDetails) {
             console.log(`New Calendar Created: ${calendarDetails.id}`);
+            
+            
+            
+            
+            const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
+
+            // Assuming makeCalendarPublic is implemented and works as expected
+           
+        
+            
+            
+            
+            
             for (const event of processedEvents) {
                 const result = await addEvent(event, calendarDetails.id);
                 console.log(
@@ -301,22 +320,22 @@ app.post('/processEvents', async (req, res) => {
                         : `Failed to add event: ${event.summary}`
                 );
             }
-
-         
-
-            const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
-
-            // Assuming makeCalendarPublic is implemented and works as expected
+            
             const iCalLink = await makeCalendarPublic(calendarDetails.id);
             const googleCalendarLink = `https://calendar.google.com/calendar/embed?src=${calendarDetails.id}&ctz=America/New_York`;  // Make sure the timezone is correct
-
             console.log(`Calendar created and shared. iCal Link: ${iCalLink}, Google Calendar Link: ${googleCalendarLink}`);
+
+
             res.json({
                 status: 'success',
                 message: 'Events processed and calendar created.',
                 iCalLink,
                 googleCalendarLink
             });
+            
+         
+
+            
         } else {
             console.log("Failed to create a new calendar");
             res.status(500).json({ status: 'error', message: 'Internal server error.' });
