@@ -195,7 +195,23 @@ async function makeCalendarPublic(calendarId) {
     }
 }
 
-
+const addEvents = async (events, calendarId) => {
+    const promises = events.map(event => {
+        return calendar.events.insert({
+            auth,
+            calendarId,
+            resource: event
+        }).then(response => ({
+            status: 'success',
+            summary: event.summary
+        })).catch(error => ({
+            status: 'failed',
+            summary: event.summary,
+            error: error.message
+        }));
+    });
+    return Promise.all(promises);
+};
 
 
 
@@ -313,6 +329,7 @@ app.post('/processEvents', async (req, res) => {
             const googleCalendarLink = `https://calendar.google.com/calendar/u/0?cid=${calendarDetails.id}`;  // Make sure the timezone is correct
             console.log(`Calendar created and shared. iCal Link: ${iCalLink}, Google Calendar Link: ${googleCalendarLink}`);
 
+            const results = await addEvents(events, calendarDetails.id);
 
             res.json({
                 status: 'success',
@@ -321,14 +338,7 @@ app.post('/processEvents', async (req, res) => {
                 googleCalendarLink
             });
             
-            for (const event of processedEvents) {
-                const result = await addEvent(event, calendarDetails.id);
-                console.log(
-                    result
-                        ? `Event added successfully: ${event.summary}`
-                        : `Failed to add event: ${event.summary}`
-                );
-            }
+
             
            
             
