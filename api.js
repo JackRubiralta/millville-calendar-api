@@ -182,22 +182,26 @@ const addEvents = async (events, calendarId) => {
 
     // max is 10 per second
     const BATCH_SIZE = 9; // Maximum number of events per batch
-    const REQUEST_INTERVAL_MS = 2000; // Wait 1 second between batches
+    const REQUEST_INTERVAL_MS = 1000; // Wait 1 second between batches
     let promises = [];
 
     for (let i = 0; i < events.length; i += BATCH_SIZE) {
         // Get the current batch of events
         const currentBatch = events.slice(i, i + BATCH_SIZE);
+
         // Add events in the current batch
+        if (currentBatch){
         promises = promises.concat(currentBatch.map(event => addEvent(event, calendarId)));
         
         // Wait for all events in the current batch to be added
         await Promise.all(promises);
         
+        
         // Delay before processing the next batch
         if (i + BATCH_SIZE < events.length) {
             await delay(REQUEST_INTERVAL_MS);
         }
+    }
     }
 
     return Promise.all(promises);
