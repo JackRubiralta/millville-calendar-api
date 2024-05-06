@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { google } = require('googleapis');
 
 // Configuration and Google calendar API initialization
@@ -153,11 +152,6 @@ const deleteAllCalendars = async () => {
     }
 };
 
-/**
- * Makes a specified Google Calendar public and returns the iCal public URL.
- * @param {string} calendarId The ID of the calendar to make public.
- * @returns {string} The iCal URL of the public calendar.
- */
 async function makeCalendarPublic(calendarId) {
     try {
         // Update the calendar to make it public
@@ -165,7 +159,7 @@ async function makeCalendarPublic(calendarId) {
             auth,
             calendarId,
             requestBody: {
-                role: 'reader',
+                role: 'owner',
                 scope: {
                     type: 'default'
                 }
@@ -182,6 +176,25 @@ async function makeCalendarPublic(calendarId) {
     }
 }
 
+
+const addEvents = async (events, calendarId) => {
+    const promises = events.map(event => {
+        return calendar.events.insert({
+            auth,
+            calendarId,
+            resource: event
+        }).then(response => ({
+            status: 'success',
+            summary: event.summary
+        })).catch(error => ({
+            status: 'failed',
+            summary: event.summary,
+            error: error.message
+        }));
+    });
+    return Promise.all(promises);
+};
+
 module.exports = {
     createCalendar,
     shareCalendar,
@@ -190,5 +203,6 @@ module.exports = {
     getCalendarEvents,
     getMillVilleCalendar,
     deleteAllCalendars, // Add this to export the new function
-    makeCalendarPublic
+    makeCalendarPublic,
+    addEvents
 };
