@@ -309,7 +309,17 @@ app.post('/processEvents', async (req, res) => {
         
             
             
-            
+            const iCalLink = await makeCalendarPublic(calendarDetails.id);
+            const googleCalendarLink = `https://calendar.google.com/calendar/u/0?cid=${calendarDetails.id}`;  // Make sure the timezone is correct
+            console.log(`Calendar created and shared. iCal Link: ${iCalLink}, Google Calendar Link: ${googleCalendarLink}`);
+
+
+            res.json({
+                status: 'success',
+                message: 'Events processing and calendar created.',
+                iCalLink,
+                googleCalendarLink
+            });
             
             for (const event of processedEvents) {
                 const result = await addEvent(event, calendarDetails.id);
@@ -320,17 +330,7 @@ app.post('/processEvents', async (req, res) => {
                 );
             }
             
-            const iCalLink = await makeCalendarPublic(calendarDetails.id);
-            const googleCalendarLink = `https://calendar.google.com/calendar/u/0?cid=${calendarDetails.id}`;  // Make sure the timezone is correct
-            console.log(`Calendar created and shared. iCal Link: ${iCalLink}, Google Calendar Link: ${googleCalendarLink}`);
-
-
-            res.json({
-                status: 'success',
-                message: 'Events processed and calendar created.',
-                iCalLink,
-                googleCalendarLink
-            });
+           
             
          
 
