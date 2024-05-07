@@ -104,8 +104,10 @@ app.post('/processEvents', (req, res) => {
                     }
                 } else if (event.summary.includes("Chapel")) {
                     event.colorId = blockToColors["Chapel"];
+                    event.summary = event.summary.replace(",", "")
                 } else if (event.summary.includes("House Meetings")) {
                     event.colorId = blockToColors["House Meetings"];
+                    event.summary = event.summary.replace(",", "")
                 } else {
                     event.colorId = defaultColor;
                 }
