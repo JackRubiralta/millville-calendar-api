@@ -45,11 +45,13 @@ app.post("/processEvents", (req, res) => {
         try {
             const {
                 shareEmail,
-                defaultColor,
                 blockToClasses,
                 blockToColors,
                 humanitiesBlock,
                 secondLunchBlocks,
+                lunchColor,
+                defaultColor,
+
             } = req.body;
 
             const events = await getMillVilleCalendar(34);
@@ -96,12 +98,12 @@ app.post("/processEvents", (req, res) => {
                             event.colorId = blockToColors[blockLetter];
                             event.summary = blockToClasses[blockLetter];
                         } else if (blockNumber === "2") {
-                            event.colorId = blockToColors["Lunch"];
+                            event.colorId = lunchColor;
                             event.summary = "Lunch";
                         }
                     } else {
                         if (blockNumber === "1") {
-                            event.colorId = blockToColors["Lunch"];
+                            event.colorId = lunchColor;
                             event.summary = "Lunch";
                         } else if (blockNumber === "2") {
                             event.colorId = blockToColors[blockLetter];
@@ -131,7 +133,7 @@ app.post("/processEvents", (req, res) => {
             const calendarDetails = await createCalendar(
                 "Millville School Adjusted Events"
             );
-
+            
             if (calendarDetails) {
                 console.log(`New Calendar Created: ${calendarDetails.id}`);
                 await addEvents(processedEvents, calendarDetails.id);
