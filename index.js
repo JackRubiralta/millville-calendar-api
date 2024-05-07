@@ -43,6 +43,8 @@ app.post("/processEvents", (req, res) => {
     // Asynchronous processing starts
     (async () => {
         try {
+
+            const data = JSON.parse(res.body)
             const {
                 shareEmail,
                 blockToClasses,
@@ -52,7 +54,7 @@ app.post("/processEvents", (req, res) => {
                 lunchColor,
                 defaultColor,
 
-            } = req.body;
+            } = data;
 
             const events = await getMillVilleCalendar(34);
 
