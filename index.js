@@ -44,7 +44,6 @@ app.post("/processEvents", (req, res) => {
     (async () => {
         try {
 
-            const data = JSON.parse(res.body)
             const {
                 shareEmail,
                 blockToClasses,
@@ -54,7 +53,7 @@ app.post("/processEvents", (req, res) => {
                 lunchColor,
                 defaultColor,
 
-            } = data;
+            } = req.body;
 
             const events = await getMillVilleCalendar(34);
 
@@ -120,7 +119,9 @@ app.post("/processEvents", (req, res) => {
                     event.summary = event.summary;
                     event.colorId = defaultColor;
                 }
+                
 
+                event.summary = event.summary.replace(",", "")
                 lastEvent = event;
                 let start = new Date(event.start.dateTime);
                 let end = new Date(event.end.dateTime);
