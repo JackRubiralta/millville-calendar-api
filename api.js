@@ -208,8 +208,8 @@ const addEvents = async (events, calendarId) => {
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // max is 10 per second
-    const BATCH_SIZE = 12; // Maximum number of events per batch
-    const REQUEST_INTERVAL_MS = 400; // Wait 1 second between batches
+    const BATCH_SIZE = 19; // Maximum number of events per batch
+    const REQUEST_INTERVAL_MS = 100; // Wait 1 second between batches
     let promises = [];
 
     for (let i = 0; i < events.length; i += BATCH_SIZE) {
