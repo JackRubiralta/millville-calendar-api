@@ -121,7 +121,6 @@ app.post("/processEvents", (req, res) => {
                 }
                 
 
-                event.summary = event.summary.replace(",", "")
                 lastEvent = event;
                 let start = new Date(event.start.dateTime);
                 let end = new Date(event.end.dateTime);

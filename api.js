@@ -63,7 +63,6 @@ const shareCalendar = async (calendarId, email) => {
 // Function to insert a new event into a specific calendar
 const addEvent = async (event, calendarId) => {
     try {
-        event.summary = event.summary.replace(",", "")
         const response = await calendar.events.insert({
             auth,
             calendarId,
