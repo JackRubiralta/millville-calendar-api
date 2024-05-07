@@ -1,16 +1,16 @@
-const { google } = require('googleapis');
-const express = require('express');
+const { google } = require("googleapis");
+const express = require("express");
 const morgan = require("morgan");
-const cors = require('cors');
-const { v4: uuidv4 } = require('uuid'); // For generating unique IDs
+const cors = require("cors");
+const { v4: uuidv4 } = require("uuid"); // For generating unique IDs
 const PORT = process.env.PORT || 3001;
 const {
     createCalendar,
     shareCalendar,
     makeCalendarPublic,
     addEvents,
-    getMillVilleCalendar
-} = require('./api');
+    getMillVilleCalendar,
+} = require("./api");
 
 // Store request statuses in memory
 const statusStore = {};
@@ -20,14 +20,14 @@ const updateStatus = (requestId, status, message, links = {}) => {
     statusStore[requestId] = {
         status,
         message,
-        ...links
+        ...links,
     };
 };
 
 const app = express();
 const corsOptions = {
-    origin: 'https://jackrubiralta.github.io',
-    optionsSuccessStatus: 200
+    origin: "https://jackrubiralta.github.io",
+    optionsSuccessStatus: 200,
 };
 
 app.use(cors());
@@ -35,10 +35,10 @@ app.use(express.json());
 app.use(morgan("combined"));
 
 // Endpoint to initiate calendar processing
-app.post('/processEvents', (req, res) => {
+app.post("/processEvents", (req, res) => {
     // Generate a unique request ID for tracking this process
     const requestId = uuidv4();
-    updateStatus(requestId, 'processing', 'Event processing started.');
+    updateStatus(requestId, "processing", "Event processing started.");
 
     // Asynchronous processing starts
     (async () => {
@@ -49,12 +49,15 @@ app.post('/processEvents', (req, res) => {
                 blockToClasses,
                 blockToColors,
                 humanitiesBlock,
-                secondLunchBlocks
+                secondLunchBlocks,
             } = req.body;
 
             const events = await getMillVilleCalendar(34);
 
-            events.sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
+            events.sort(
+                (a, b) =>
+                    new Date(a.start.dateTime) - new Date(b.start.dateTime)
+            );
 
             let processedEvents = [];
             let lastEvent = null;
@@ -73,7 +76,10 @@ app.post('/processEvents', (req, res) => {
                         event.summary = blockToClasses[humanitiesBlock];
                     }
                 } else if (event.summary.includes("FLEX")) {
-                    if (lastEvent && lastEvent.summary === blockToClasses[humanitiesBlock]) {
+                    if (
+                        lastEvent &&
+                        lastEvent.summary === blockToClasses[humanitiesBlock]
+                    ) {
                         lastEvent.end = event.end;
                         continue;
                     } else {
@@ -104,37 +110,58 @@ app.post('/processEvents', (req, res) => {
                     }
                 } else if (event.summary.includes("Chapel")) {
                     event.colorId = blockToColors["Chapel"];
-                    event.summary = event.summary.replace(",", "")
+                    event.summary = event.summary.replace(",", "");
                 } else if (event.summary.includes("House Meetings")) {
                     event.colorId = blockToColors["House Meetings"];
-                    event.summary = event.summary.replace(",", "")
+                    event.summary = event.summary.replace(",", "");
                 } else {
                     event.colorId = defaultColor;
                 }
 
                 lastEvent = event;
-                processedEvents.push(event);
+                let start = new Date(event.start.dateTime);
+                let end = new Date(event.end.dateTime);
+                let duration = (end - start) / (1000 * 60 * 60 * 24); // Convert duration from milliseconds to days
+
+                // Only push the event if its duration is less than one day
+                if (duration < 1) {
+                    processedEvents.push(event);
+                }
             }
 
-            const calendarDetails = await createCalendar("Millville School Adjusted Events");
+            const calendarDetails = await createCalendar(
+                "Millville School Adjusted Events"
+            );
 
             if (calendarDetails) {
                 console.log(`New Calendar Created: ${calendarDetails.id}`);
                 await addEvents(processedEvents, calendarDetails.id);
-                const shareResult = await shareCalendar(calendarDetails.id, shareEmail);
+                const shareResult = await shareCalendar(
+                    calendarDetails.id,
+                    shareEmail
+                );
                 const iCalLink = await makeCalendarPublic(calendarDetails.id);
                 const googleCalendarLink = `https://calendar.google.com/calendar/u/0?cid=${calendarDetails.id}`;
 
-                updateStatus(requestId, 'completed', 'Events processed and calendar created.', {
-                    iCalLink,
-                    googleCalendarLink
-                });
+                updateStatus(
+                    requestId,
+                    "completed",
+                    "Events processed and calendar created.",
+                    {
+                        iCalLink,
+                        googleCalendarLink,
+                    }
+                );
             } else {
-                updateStatus(requestId, 'failed', 'Failed to create a new calendar.');
+                updateStatus(
+                    requestId,
+                    "failed",
+                    "Failed to create a new calendar."
+                );
             }
         } catch (error) {
             console.error(`Error in processEvents: ${error}`);
-            updateStatus(requestId, 'failed', 'Internal server error.');
+            updateStatus(requestId, "failed", "Internal server error.");
         }
     })();
 
@@ -143,9 +170,12 @@ app.post('/processEvents', (req, res) => {
 });
 
 // Endpoint to check the status of processing
-app.get('/status/:requestId', (req, res) => {
+app.get("/status/:requestId", (req, res) => {
     const { requestId } = req.params;
-    const statusInfo = statusStore[requestId] || { status: 'unknown', message: 'Invalid Request ID.' };
+    const statusInfo = statusStore[requestId] || {
+        status: "unknown",
+        message: "Invalid Request ID.",
+    };
     res.json(statusInfo);
 });
 
