@@ -84,7 +84,7 @@ app.post("/processEvents", (req, res) => {
                         continue;
                     } else {
                         event.colorId = blockToColors["FLEX"];
-                        event.summary = "Flex";
+                        
                     }
                 } else if (blockToClasses[event.summary]) {
                     event.colorId = blockToColors[event.summary];
@@ -110,11 +110,10 @@ app.post("/processEvents", (req, res) => {
                     }
                 } else if (event.summary.includes("Chapel")) {
                     event.colorId = blockToColors["Chapel"];
-                    event.summary = event.summary.replace(",", "");
                 } else if (event.summary.includes("House Meetings")) {
                     event.colorId = blockToColors["House Meetings"];
-                    event.summary = event.summary.replace(",", "");
                 } else {
+                    event.summary = event.summary;
                     event.colorId = defaultColor;
                 }
 
