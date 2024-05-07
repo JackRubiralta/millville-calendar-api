@@ -219,7 +219,7 @@ const addEvents = async (events, calendarId) => {
         // Add events in the current batch
         if (currentBatch) {
             promises = promises.concat(
-                currentBatch.map((event) => addEvent(event, calendarId))
+                currentBatch.map(async (event) =>  addEvent(event, calendarId))
             );
 
             // Wait for all events in the current batch to be added
