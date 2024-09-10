@@ -87,6 +87,7 @@ app.post("/processEvents", (req, res) => {
                         continue;
                     } else {
                         event.colorId = blockToColors["FLEX"];
+                        event.summary = "FLEX";
                         
                     }
                 } else if (blockToClasses[event.summary]) {
