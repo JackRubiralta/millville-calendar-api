@@ -68,6 +68,11 @@ app.post("/processEvents", (req, res) => {
             for (let event of events) {
                 let blockLetter = event.summary[0];
 
+                if (event.summary.toLowerCase().includes("flex")) {
+                    event.summary = "FLEX";
+                }
+
+                
                 if (event.summary === humanitiesBlock) {
                     if (lastEvent && lastEvent.summary === "FLEX") {
                         lastEvent.colorId = blockToColors[event.summary];
@@ -87,8 +92,6 @@ app.post("/processEvents", (req, res) => {
                         continue;
                     } else {
                         event.colorId = blockToColors["FLEX"];
-                        event.summary = "FLEX";
-                        
                     }
                 } else if (blockToClasses[event.summary]) {
                     event.colorId = blockToColors[event.summary];
