@@ -55,7 +55,8 @@ app.post("/processEvents", (req, res) => {
 
             } = req.body;
 
-            const events = await getMillVilleCalendar(34);
+            const DATE_RANGE = 100;
+            const events = await getMillVilleCalendar(DATE_RANGE);
 
             events.sort(
                 (a, b) =>
